@@ -5,7 +5,9 @@ const calculateCartTotalPrice = async (items) => {
   for (const item of items) {
     const itemDocument = await Items.findById(item.itemId);
 
-    totalPrice += itemDocument.price * item.quantity;
+    if (itemDocument) {
+      totalPrice += itemDocument.price * item.quantity;
+    }
   }
   return totalPrice;
 };
@@ -28,7 +30,10 @@ const createCart = async (req, res) => {
 
 const getAllCarts = async (req, res) => {
   try {
-    const carts = await cart.find();
+    const carts = await cart.find().populate({
+      path: "items.itemId",
+      select: "title",
+    });
 
     res.status(200).json({ data: carts });
   } catch (error) {
@@ -39,17 +44,20 @@ const getAllCarts = async (req, res) => {
 const updateCart = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, items } = req.body;
+    const { items } = req.body;
 
-    const updatedCart = await cart.findByIdAndUpdate(
-      id,
-      { userId, items },
-      { new: true }
-    );
+    const totalPrice = await calculateCartTotalPrice(items);
+
+    let updatedCart = await cart.findById(id);
 
     if (!updatedCart) {
       return res.status(404).json({ message: "Cart not found" });
     }
+
+    updatedCart.items = items;
+    updatedCart.totalPrice = totalPrice;
+
+    updatedCart = await updatedCart.save();
 
     res
       .status(200)
