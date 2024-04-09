@@ -48,8 +48,8 @@ const loginMiddleware = async (req, res, next) => {
   if (!isValidPassword) {
     return res.status(400).json({ message: "Incorrect password" });
   }
+  
   const token = jwt.sign({ userId: user._id }, "secret", { expiresIn: "1h" });
-  // Attach token to request object for future use (optional)
   req.token = token;
   next();
 };

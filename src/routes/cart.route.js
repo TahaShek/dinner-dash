@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-// const {}=
 const adminMidlleware=require('../middlewares/admin.middleware')
 const { cartController } = require("../controller");
 router.get("/", cartController.getAllCarts);
