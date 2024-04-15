@@ -20,7 +20,7 @@ const createItem = async (req, res) => {
 const getAllItems = async (req, res) => {
   try {
     const items = await Items.find();
-    res.status(200).json({ data: items });
+    res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -30,7 +30,7 @@ const getItemById = async (req, res) => {
   try {
     const { id } = req.params;
     const item = await Items.findById(id);
-    res.status(200).json({ data: item });
+    res.status(200).json(item);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

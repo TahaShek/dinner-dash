@@ -12,17 +12,50 @@ const calculateCartTotalPrice = async (items) => {
   return totalPrice;
 };
 
+// const createCart = async (req, res) => {
+//   try {
+//     const { userId, items } = req.body;
+
+//     const totalPrice = await calculateCartTotalPrice(items);
+//     const existingCart = await cart.findById(userId);
+//     if (existingCart) {
+//       existingCart.items.push(items);
+//       await existingCart.save();
+//       return res.status(200).json({ message: "Cart added successfully" });
+//     }
+
+//     const newCart = await cart.create({ userId, items, totalPrice });
+
+//     res
+//       .status(200)
+//       .json({ message: "Cart created successfully", data: newCart });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 const createCart = async (req, res) => {
   try {
     const { userId, items } = req.body;
 
-    const totalPrice = await calculateCartTotalPrice(items);
+    let existingCart = await cart.findOne({ userId });
 
-    const newCart = await cart.create({ userId, items, totalPrice });
+    if (existingCart) {
+      existingCart.items = [...items, ...existingCart.items];
+      existingCart.totalPrice = await calculateCartTotalPrice(items);
+      existingCart = await existingCart.save();
 
-    res
-      .status(200)
-      .json({ message: "Cart created successfully", data: newCart });
+      return res
+        .status(200)
+        .json({ message: "Cart updated successfully", data: existingCart });
+    } else {
+      const totalPrice = await calculateCartTotalPrice(items);
+      const newCart = await cart.create({ userId, items, totalPrice });
+
+      return res
+        .status(200)
+        .json({ message: "Cart created successfully", data: newCart });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

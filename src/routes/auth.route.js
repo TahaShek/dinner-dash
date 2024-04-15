@@ -14,5 +14,5 @@ router.post(
   validate,
   authController.resgisterUser
 );
-router.post("/login", loginMiddleware, authController.login);
+router.get("/login", loginMiddleware, authController.login);
 module.exports = router;
